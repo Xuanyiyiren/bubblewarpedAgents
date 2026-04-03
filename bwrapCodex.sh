@@ -31,8 +31,6 @@ bwrap \
   --proc /proc \
   --dev /dev \
   --tmpfs /tmp \
-  --setenv HOME "$HOME" \
-  --setenv USER "$USER" \
   --share-net \
   --unshare-pid \
   --die-with-parent \
