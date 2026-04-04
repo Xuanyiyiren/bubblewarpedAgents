@@ -12,9 +12,9 @@ OVERRIDE_BINDS="
 # The $HOME directory is masked, and only the following paths are bound back in.
 HOME_BINDS=""
 [ -d "$HOME/.local" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.local $HOME/.local"
-[ -d "$HOME/.npm" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.npm $HOME/.npm"
+[ -d "$HOME/.npm" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.npm $HOME/.npm"
+[ -d "$HOME/.agents" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.agents $HOME/.agents"
 [ -d "$HOME/.codex" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.codex $HOME/.codex"
-[ -d "$HOME/.agents" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.agents $HOME/.agents"
 
 bwrap \
   $BASE_BINDS \
