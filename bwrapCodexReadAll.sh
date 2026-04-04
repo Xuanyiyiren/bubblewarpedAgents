@@ -8,12 +8,15 @@ OPTIONAL_BINDS=""
 
 # These paths might not exist
 EXTRA_BINDS=""
+[ -d "$HOME/.local" ] && EXTRA_BINDS="$EXTRA_BINDS --ro-bind $HOME/.local $HOME/.local"
 [ -d "$HOME/.npm" ] && EXTRA_BINDS="$EXTRA_BINDS --bind $HOME/.npm $HOME/.npm"
 [ -d "$HOME/.codex" ] && EXTRA_BINDS="$EXTRA_BINDS --bind $HOME/.codex $HOME/.codex"
 [ -d "$HOME/.agents" ] && EXTRA_BINDS="$EXTRA_BINDS --bind $HOME/.agents $HOME/.agents"
 
 bwrap \
   --ro-bind / / \
+  --ro-bind /dev/null /usr/bin/sudo \
+  --tmpfs "$HOME" \
   $EXTRA_BINDS \
   $OPTIONAL_BINDS \
   --bind "$PWD" "$PWD" \
