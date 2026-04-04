@@ -27,6 +27,7 @@ HOME_BINDS=""
 [ -d "$HOME/.agents" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.agents $HOME/.agents"
 [ -d "$HOME/.copilot" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.copilot $HOME/.copilot"
 [ -d "$HOME/.cache/copilot" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.cache/copilot $HOME/.cache/copilot"
+[ -d "$HOME/superpowers/skills" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/superpowers/skills $HOME/superpowers/skills"
 
 bwrap \
   $SYSTEM_BINDS \
