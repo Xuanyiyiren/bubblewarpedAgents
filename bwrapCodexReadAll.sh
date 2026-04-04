@@ -21,7 +21,6 @@ bwrap \
   $OVERRIDE_BINDS \
   --tmpfs "$HOME" \
   $HOME_BINDS \
-  $OPTIONAL_BINDS \
   --bind "$PWD" "$PWD" \
   --proc /proc \
   --dev /dev \

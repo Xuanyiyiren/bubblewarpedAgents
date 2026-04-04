@@ -30,7 +30,6 @@ bwrap \
   $SYSTEM_BINDS \
   $OVERRIDE_BINDS \
   $HOME_BINDS \
-  $OPTIONAL_BINDS \
   --bind "$PWD" "$PWD" \
   --proc /proc \
   --dev /dev \
