@@ -4,6 +4,8 @@ The safety of my machine is ultimately my responsibility. This project uses `bub
 
 I am not formally trained in computer science or security; this project mostly comes from reading a bit of the `bubblewrap` documentation and using it to build boundaries that make sense for my own machine.
 
+The scripts here are meant to be simple starting points for anyone who needs them; I keep them as minimal as possible, and my own workflow is usually to copy one into the place where I need it and then add any special customization there.
+
 
 ## Reference
 
