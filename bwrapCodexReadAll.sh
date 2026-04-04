@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+SCRIPT_PATH="$(realpath "$0")"
+
 BASE_BINDS="
   --ro-bind / /
 "
@@ -24,6 +26,7 @@ bwrap \
   --tmpfs "$HOME" \
   $HOME_BINDS \
   --bind "$PWD" "$PWD" \
+  --ro-bind "$SCRIPT_PATH" "$SCRIPT_PATH" \
   --proc /proc \
   --dev /dev \
   --tmpfs /tmp \

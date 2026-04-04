@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+SCRIPT_PATH="$(realpath "$0")"
+
 SYSTEM_BINDS="
   --ro-bind /usr /usr
   --ro-bind /lib /lib
@@ -33,6 +35,7 @@ bwrap \
   $OVERRIDE_BINDS \
   $HOME_BINDS \
   --bind "$PWD" "$PWD" \
+  --ro-bind "$SCRIPT_PATH" "$SCRIPT_PATH" \
   --proc /proc \
   --dev /dev \
   --tmpfs /tmp \
