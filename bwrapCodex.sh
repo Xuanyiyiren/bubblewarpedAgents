@@ -23,6 +23,7 @@ OVERRIDE_BINDS="
 HOME_BINDS=""
 [ -d "$HOME/.local" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.local $HOME/.local"
 [ -d "$HOME/.npm" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.npm $HOME/.npm"
+[ -d "$HOME/.npm-global" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.npm-global $HOME/.npm-global"
 [ -d "$HOME/.agents" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.agents $HOME/.agents"
 [ -d "$HOME/.codex" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.codex $HOME/.codex"
 
