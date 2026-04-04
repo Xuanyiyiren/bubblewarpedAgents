@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
 
-# Optional paths - only bind if they exist
-OPTIONAL_BINDS=""
-# [ -d "$HOME/.nvm" ] && OPTIONAL_BINDS="$OPTIONAL_BINDS --bind $HOME/.nvm $HOME/.nvm"
-# [ -d "$HOME/.config/git" ] && OPTIONAL_BINDS="$OPTIONAL_BINDS --bind $HOME/.config/git $HOME/.config/git"
-# [ -d "$HOME/.config/gh" ] && OPTIONAL_BINDS="$OPTIONAL_BINDS --bind $HOME/.config/gh $HOME/.config/gh"
+BASE_BINDS="
+  --ro-bind / /
+"
 
-# These paths might not exist
-EXTRA_BINDS=""
-[ -d "$HOME/.local" ] && EXTRA_BINDS="$EXTRA_BINDS --ro-bind $HOME/.local $HOME/.local"
-[ -d "$HOME/.npm" ] && EXTRA_BINDS="$EXTRA_BINDS --bind $HOME/.npm $HOME/.npm"
-[ -d "$HOME/.codex" ] && EXTRA_BINDS="$EXTRA_BINDS --bind $HOME/.codex $HOME/.codex"
-[ -d "$HOME/.agents" ] && EXTRA_BINDS="$EXTRA_BINDS --bind $HOME/.agents $HOME/.agents"
+# These overrides must come after the broader filesystem bind they override.
+OVERRIDE_BINDS="
+  --ro-bind /dev/null /usr/bin/sudo
+"
+
+# The $HOME directory is masked, and only the following paths are bound back in.
+HOME_BINDS=""
+[ -d "$HOME/.local" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.local $HOME/.local"
+[ -d "$HOME/.npm" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.npm $HOME/.npm"
+[ -d "$HOME/.codex" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.codex $HOME/.codex"
+[ -d "$HOME/.agents" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.agents $HOME/.agents"
 
 bwrap \
-  --ro-bind / / \
-  --ro-bind /dev/null /usr/bin/sudo \
+  $BASE_BINDS \
+  $OVERRIDE_BINDS \
   --tmpfs "$HOME" \
-  $EXTRA_BINDS \
+  $HOME_BINDS \
   $OPTIONAL_BINDS \
   --bind "$PWD" "$PWD" \
   --proc /proc \

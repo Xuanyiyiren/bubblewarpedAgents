@@ -1,31 +1,35 @@
 #!/usr/bin/env bash
 
-# Optional paths - only bind if they exist
-OPTIONAL_BINDS=""
-# [ -d "$HOME/.nvm" ] && OPTIONAL_BINDS="$OPTIONAL_BINDS --ro-bind $HOME/.nvm $HOME/.nvm"
-# [ -d "$HOME/.config/git" ] && OPTIONAL_BINDS="$OPTIONAL_BINDS --ro-bind $HOME/.config/git $HOME/.config/git"
-# [ -d "$HOME/.config/gh" ] && OPTIONAL_BINDS="$OPTIONAL_BINDS --ro-bind $HOME/.config/gh $HOME/.config/gh"
+SYSTEM_BINDS="
+  --ro-bind /usr /usr
+  --ro-bind /lib /lib
+  --ro-bind /lib64 /lib64
+  --ro-bind /bin /bin
+  --ro-bind /etc/resolv.conf /etc/resolv.conf
+  --ro-bind /etc/hosts /etc/hosts
+  --ro-bind /etc/ssl /etc/ssl
+  --ro-bind /etc/ca-certificates /etc/ca-certificates
+  --ro-bind /etc/pkcs11 /etc/pkcs11
+  --ro-bind /etc/passwd /etc/passwd
+  --ro-bind /etc/group /etc/group
+"
 
-# These paths might not exist
-EXTRA_BINDS=""
-[ -d "$HOME/.local" ] && EXTRA_BINDS="$EXTRA_BINDS --ro-bind $HOME/.local $HOME/.local"
-[ -d "$HOME/.npm" ] && EXTRA_BINDS="$EXTRA_BINDS --bind $HOME/.npm $HOME/.npm"
-[ -d "$HOME/.codex" ] && EXTRA_BINDS="$EXTRA_BINDS --bind $HOME/.codex $HOME/.codex"
-[ -d "$HOME/.agents" ] && EXTRA_BINDS="$EXTRA_BINDS --bind $HOME/.agents $HOME/.agents"
+# These overrides must come after the broader system binds they mask.
+OVERRIDE_BINDS="
+  --ro-bind /dev/null /usr/bin/sudo
+"
+
+# These paths might not exist.
+HOME_BINDS=""
+[ -d "$HOME/.local" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.local $HOME/.local"
+[ -d "$HOME/.npm" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.npm $HOME/.npm"
+[ -d "$HOME/.codex" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.codex $HOME/.codex"
+[ -d "$HOME/.agents" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.agents $HOME/.agents"
 
 bwrap \
-  --ro-bind /usr /usr \
-  --ro-bind /lib /lib \
-  --ro-bind /lib64 /lib64 \
-  --ro-bind /bin /bin \
-  --ro-bind /etc/resolv.conf /etc/resolv.conf \
-  --ro-bind /etc/hosts /etc/hosts \
-  --ro-bind /etc/ssl /etc/ssl \
-  --ro-bind /etc/ca-certificates /etc/ca-certificates \
-  --ro-bind /etc/pkcs11 /etc/pkcs11 \
-  --ro-bind /etc/passwd /etc/passwd \
-  --ro-bind /etc/group /etc/group \
-  $EXTRA_BINDS \
+  $SYSTEM_BINDS \
+  $OVERRIDE_BINDS \
+  $HOME_BINDS \
   $OPTIONAL_BINDS \
   --bind "$PWD" "$PWD" \
   --proc /proc \
