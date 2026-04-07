@@ -34,4 +34,4 @@ bwrap \
   --unshare-pid \
   --die-with-parent \
   --chdir "$PWD" \
-  codex --sandbox workspace-write --ask-for-approval never "$@"
+  codex --dangerously-bypass-approvals-and-sandbox "$@"
