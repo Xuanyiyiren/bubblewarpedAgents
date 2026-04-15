@@ -14,6 +14,7 @@ SYSTEM_BINDS="
   --ro-bind /etc/pkcs11 /etc/pkcs11
   --ro-bind /etc/passwd /etc/passwd
   --ro-bind /etc/group /etc/group
+  --ro-bind /etc/proxychains.conf /etc/proxychains.conf
 "
 
 # These overrides must come after the broader system binds they mask.
