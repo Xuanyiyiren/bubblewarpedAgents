@@ -19,6 +19,7 @@ HOME_BINDS=""
 [ -d "$HOME/.copilot" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.copilot $HOME/.copilot"
 [ -d "$HOME/.cache/copilot" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.cache/copilot $HOME/.cache/copilot"
 [ -d "$HOME/superpowers/skills" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/superpowers/skills $HOME/superpowers/skills"
+[ -e "$PWD/.git" ] && PWD_GIT_BIND="--ro-bind $PWD/.git $PWD/.git"
 
 bwrap \
   $BASE_BINDS \
@@ -26,6 +27,7 @@ bwrap \
   --tmpfs "$HOME" \
   $HOME_BINDS \
   --bind "$PWD" "$PWD" \
+  $PWD_GIT_BIND \
   --ro-bind "$SCRIPT_PATH" "$SCRIPT_PATH" \
   --proc /proc \
   --dev /dev \
