@@ -14,8 +14,9 @@ SYSTEM_BINDS="
   --ro-bind /etc/pkcs11 /etc/pkcs11
   --ro-bind /etc/passwd /etc/passwd
   --ro-bind /etc/group /etc/group
-  --ro-bind /etc/proxychains.conf /etc/proxychains.conf
 "
+
+[ -d "/etc/proxychains.conf" ] && SYSTEM_BINDS="$SYSTEM_BINDS --ro-bind /etc/proxychains.conf /etc/proxychains.conf"
 
 # These overrides must come after the broader system binds they mask.
 OVERRIDE_BINDS="
@@ -26,10 +27,8 @@ OVERRIDE_BINDS="
 HOME_BINDS=""
 [ -d "$HOME/.local" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.local $HOME/.local"
 [ -d "$HOME/.npm" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.npm $HOME/.npm"
-[ -d "$HOME/.npm-global" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.npm-global $HOME/.npm-global"
 # [ -d "$HOME/.agents" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.agents $HOME/.agents"
 [ -d "$HOME/.codex" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.codex $HOME/.codex"
-[ -d "$HOME/superpowers/skills" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/superpowers/skills $HOME/superpowers/skills"
 [ -e "$PWD/.git" ] && PWD_GIT_BIND="--ro-bind $PWD/.git $PWD/.git"
 
 bwrap \
