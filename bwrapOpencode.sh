@@ -10,7 +10,28 @@ jsonc_to_json() {
   perl -0pe 's/^\x{FEFF}//; s{"(?:\\.|[^"\\])*"(*SKIP)(*F)|//.*?$|/\*.*?\*/}{}gms; s!"(?:\\.|[^"\\])*"(*SKIP)(*F)|,\s*([}\]])!$1!gms'
 }
 
-if ! jsonc_to_json < "$USER_OPENCODE_CONFIG" | jq 'if type == "object" then .permission = "allow" else error("OpenCode config must be a JSON object") end' > "$OPENCODE_CONFIG_FILE"; then
+# OpenCode's TUI still does not expose the run-mode skip-permissions flag, and
+# top-level "permission": "allow" still does not mean "allow" because agent
+# permissions get merged back in separately. This is a product problem, not a
+# shell-script problem, but until upstream fixes it we have to patch around it.
+if ! jsonc_to_json < "$USER_OPENCODE_CONFIG" | jq '
+  if type == "object" then
+    .permission = "allow" |
+    .agent = (.agent // {}) |
+    # Yes, this means enumerating built-in agents by name because OpenCode does
+    # not give TUI users one sane "actually allow everything" switch.
+    .agent.build = ((.agent.build // {}) + {permission: {"*": "allow"}}) |
+    .agent.plan = ((.agent.plan // {}) + {permission: {"*": "allow"}}) |
+    .agent.general = ((.agent.general // {}) + {permission: {"*": "allow"}}) |
+    .agent.explore = ((.agent.explore // {}) + {permission: {"*": "allow"}}) |
+    .agent.scout = ((.agent.scout // {}) + {permission: {"*": "allow"}}) |
+    .agent.compaction = ((.agent.compaction // {}) + {permission: {"*": "allow"}}) |
+    .agent.title = ((.agent.title // {}) + {permission: {"*": "allow"}}) |
+    .agent.summary = ((.agent.summary // {}) + {permission: {"*": "allow"}})
+  else
+    error("OpenCode config must be a JSON object")
+  end
+' > "$OPENCODE_CONFIG_FILE"; then
   printf 'Failed to merge OpenCode config from %s\n' "$USER_OPENCODE_CONFIG" >&2
   exit 1
 fi
@@ -48,6 +69,7 @@ REPO_ROOT="$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || true)"
 [ -n "$REPO_ROOT" ] && HOME_BINDS="$HOME_BINDS --ro-bind $REPO_ROOT $REPO_ROOT"
 [ -e "$PWD/.git" ] && PWD_GIT_BIND="--ro-bind $PWD/.git $PWD/.git"
 
+# Keep --ro-bind "$OPENCODE_CONFIG_FILE" after --tmpfs /tmp.
 bwrap \
   $SYSTEM_BINDS \
   $OVERRIDE_BINDS \
@@ -58,7 +80,6 @@ bwrap \
   --proc /proc \
   --dev /dev \
   --tmpfs /tmp \
-  # after --tmpfs /tmp
   --ro-bind "$OPENCODE_CONFIG_FILE" "$OPENCODE_CONFIG_FILE" \
   --share-net \
   --unshare-pid \
