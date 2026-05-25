@@ -48,6 +48,8 @@ bwrap \
   --proc /proc \
   --dev /dev \
   --tmpfs /tmp \
+  # after --tmpfs /tmp
+  --ro-bind "$OPENCODE_CONFIG_FILE" "$OPENCODE_CONFIG_FILE" \
   --share-net \
   --unshare-pid \
   --die-with-parent \
