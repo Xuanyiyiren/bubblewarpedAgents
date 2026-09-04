@@ -6,6 +6,8 @@ I am not formally trained in computer science or security; this project mostly c
 
 The scripts here are meant to be simple starting points for anyone who needs them; I keep them as minimal as possible, and my own workflow is usually to copy one into the place where I need it and then add any special customization there.
 
+`bwrapPi.sh` intentionally starts `pi-permission-modes` in YOLO mode. Pi's own permission and sandbox layers are not security boundaries here; the enclosing Bubblewrap namespace is.
+
 
 ## Reference
 
