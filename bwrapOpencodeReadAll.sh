@@ -22,6 +22,7 @@ REPO_ROOT="$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || true)"
 
 BASE_BINDS="
   --ro-bind / /
+  --tmpfs /mnt
 "
 
 # These overrides must come after the broader filesystem bind they override.

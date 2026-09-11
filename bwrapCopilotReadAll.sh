@@ -4,6 +4,7 @@ SCRIPT_PATH="$(realpath "$0")"
 
 BASE_BINDS="
   --ro-bind / /
+  --tmpfs /mnt
 "
 
 # These overrides must come after the broader filesystem bind they override.
