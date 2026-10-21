@@ -28,6 +28,8 @@ BASE_BINDS="
 # These overrides must come after the broader filesystem bind they override.
 OVERRIDE_BINDS="
   --ro-bind /dev/null /usr/bin/sudo
+  --tmpfs /run/user/$(id -u)
+  --tmpfs /run/dbus
 "
 
 # The $HOME directory is masked, and only the following paths are bound back in.
@@ -53,6 +55,9 @@ bwrap \
   --proc /proc \
   --dev /dev \
   --tmpfs /tmp \
+  --unsetenv DBUS_SESSION_BUS_ADDRESS \
+  --unsetenv DBUS_SYSTEM_BUS_ADDRESS \
+  --unsetenv SSH_AUTH_SOCK \
   --share-net \
   --unshare-pid \
   --die-with-parent \

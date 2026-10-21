@@ -41,6 +41,9 @@ bwrap \
   --proc /proc \
   --dev /dev \
   --tmpfs /tmp \
+  --unsetenv DBUS_SESSION_BUS_ADDRESS \
+  --unsetenv DBUS_SYSTEM_BUS_ADDRESS \
+  --unsetenv SSH_AUTH_SOCK \
   --share-net \
   --unshare-pid \
   --die-with-parent \
