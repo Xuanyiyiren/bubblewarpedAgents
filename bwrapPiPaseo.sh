@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # bwrapPiPaseo.sh: bwrapPiReadAll.sh for Paseo-launched pi.
-# Only difference from bwrapPiReadAll.sh: files passed via --extension / --mcp-config
-# (Paseo writes them under the host /tmp) are bound read-only into the sandbox,
-# so the --tmpfs /tmp below does not hide them.
+# Files passed via --extension / --mcp-config are bound read-only after /tmp tmpfs.
+# Paseo worktrees and their main repos are shared read-only; other Paseo state stays hidden.
 
 SCRIPT_PATH="$(realpath "$0")"
 
@@ -24,9 +23,26 @@ HOME_BINDS=""
 [ -d "$HOME/.npm" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.npm $HOME/.npm"
 [ -d "$HOME/humanizer" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/humanizer $HOME/humanizer"
 [ -d "$HOME/.agents" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.agents $HOME/.agents"
-[ -d "$HOME/.paseo" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.paseo $HOME/.paseo"
 [ -d "$HOME/.pi" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.pi $HOME/.pi"
 [ -e "$PWD/.git" ] && PWD_GIT_BIND="--ro-bind $PWD/.git $PWD/.git"
+
+# Paseo integration: prepare mounts here; bwrap applies them at the required positions below.
+# Share all projects' worktrees without exposing Paseo config or other state.
+[ -d "$HOME/.paseo/worktrees" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.paseo/worktrees $HOME/.paseo/worktrees"
+
+# Worktree gitfiles point into the main repo, which is shared read-only.
+if [ -f "$PWD/.git" ]; then
+  GIT_COMMON_DIR="$(git -C "$PWD" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"
+  if [ -d "$GIT_COMMON_DIR" ]; then
+    if [ "$(basename "$GIT_COMMON_DIR")" = ".git" ]; then
+      MAIN_REPO="$(dirname "$GIT_COMMON_DIR")"
+      HOME_BINDS="$HOME_BINDS --ro-bind $MAIN_REPO $MAIN_REPO"
+    else
+      # A separate Git directory's parent is not necessarily the main repo.
+      PWD_GIT_BIND="$PWD_GIT_BIND --ro-bind $GIT_COMMON_DIR $GIT_COMMON_DIR"
+    fi
+  fi
+fi
 
 # Files passed by Paseo, e.g. /tmp/paseo-pi-extension-*/paseo-integration.mjs.
 # Bind the files themselves (not their directories) and only read-only.
