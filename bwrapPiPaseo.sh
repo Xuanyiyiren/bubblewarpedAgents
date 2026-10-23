@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # bwrapPiPaseo.sh: bwrapPiReadAll.sh for Paseo-launched pi.
 # Files passed via --extension / --mcp-config are bound read-only after /tmp tmpfs.
-# Paseo worktrees and their main repos are shared read-only; other Paseo state stays hidden.
+# Paseo state (including worktrees) and worktrees' main repos are shared read-only.
 
 SCRIPT_PATH="$(realpath "$0")"
 
@@ -28,8 +28,8 @@ HOME_BINDS=""
 [ -e "$PWD/.git" ] && PWD_GIT_BIND="--ro-bind $PWD/.git $PWD/.git"
 
 # Paseo integration: prepare mounts here; bwrap applies them at the required positions below.
-# Share all projects' worktrees without exposing Paseo config or other state.
-[ -d "$HOME/.paseo/worktrees" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.paseo/worktrees $HOME/.paseo/worktrees"
+# Share Paseo config, state, and all projects' worktrees read-only.
+[ -d "$HOME/.paseo" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.paseo $HOME/.paseo"
 
 # Worktree gitfiles point into the main repo, which is shared read-only.
 if [ -f "$PWD/.git" ]; then
