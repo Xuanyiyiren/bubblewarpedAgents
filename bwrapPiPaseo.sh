@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # bwrapPiPaseo.sh: bwrapPiReadAll.sh for Paseo-launched pi.
-# Files passed via --extension / --mcp-config are bound read-only after /tmp tmpfs.
+# Files passed via --extension / --mcp-config are bound read-only after the /tmp bind.
 # Paseo state (including worktrees) and worktrees' main repos are shared read-only.
 
 SCRIPT_PATH="$(realpath "$0")"
@@ -81,7 +81,7 @@ bwrap \
   --proc /proc \
   --dev /dev \
   "${GPU_BINDS[@]}" \
-  --tmpfs /tmp \
+  --bind /tmp /tmp \
   "${PASEO_BINDS[@]}" \
   --unsetenv DBUS_SESSION_BUS_ADDRESS \
   --unsetenv DBUS_SYSTEM_BUS_ADDRESS \

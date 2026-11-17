@@ -41,7 +41,7 @@ bwrap \
   --ro-bind "$SCRIPT_PATH" "$SCRIPT_PATH" \
   --proc /proc \
   --dev /dev \
-  --tmpfs /tmp \
+  --bind /tmp /tmp \
   --unsetenv DBUS_SESSION_BUS_ADDRESS \
   --unsetenv DBUS_SYSTEM_BUS_ADDRESS \
   --unsetenv SSH_AUTH_SOCK \

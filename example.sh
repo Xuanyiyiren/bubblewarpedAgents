@@ -67,7 +67,7 @@ bwrap \
   --ro-bind /etc/passwd /etc/passwd \
   --ro-bind /etc/group /etc/group \
   --ro-bind "$HOME/.ssh/known_hosts" "$HOME/.ssh/known_hosts" \
-  --tmpfs /tmp \
+  --bind /tmp /tmp \
   $SSH_BINDS \
   $SSH_PUBKEY_BINDS \
   --ro-bind /usr/bin/gpg /usr/bin/gpg \
