@@ -29,7 +29,19 @@ HOME_BINDS=""
 [ -d "$HOME/vcpkg/installed" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/vcpkg/installed $HOME/vcpkg/installed"
 [ -d "$HOME/.claude" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.claude $HOME/.claude"
 [ -f "$HOME/.claude.json" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.claude.json $HOME/.claude.json"
+# Like .git: config that an unwrapped claude on the host would load and execute stays read-only.
+# Missing paths are skipped, so create them on the host first:
+#   mkdir -p ~/.claude/{hooks,commands,agents} && touch ~/.claude/CLAUDE.md
+[ -e "$HOME/.claude/settings.json" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.claude/settings.json $HOME/.claude/settings.json"
+[ -e "$HOME/.claude/CLAUDE.md" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.claude/CLAUDE.md $HOME/.claude/CLAUDE.md"
+[ -e "$HOME/.claude/hooks" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.claude/hooks $HOME/.claude/hooks"
+[ -e "$HOME/.claude/plugins" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.claude/plugins $HOME/.claude/plugins"
+[ -e "$HOME/.claude/commands" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.claude/commands $HOME/.claude/commands"
+[ -e "$HOME/.claude/agents" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.claude/agents $HOME/.claude/agents"
+[ -e "$HOME/.claude/skills" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.claude/skills $HOME/.claude/skills"
 [ -e "$PWD/.git" ] && PWD_GIT_BIND="--ro-bind $PWD/.git $PWD/.git"
+[ -e "$PWD/.claude" ] && PWD_CLAUDE_BINDS="--ro-bind $PWD/.claude $PWD/.claude"
+[ -e "$PWD/.mcp.json" ] && PWD_CLAUDE_BINDS="$PWD_CLAUDE_BINDS --ro-bind $PWD/.mcp.json $PWD/.mcp.json"
 
 bwrap \
   $BASE_BINDS \
@@ -38,6 +50,7 @@ bwrap \
   $HOME_BINDS \
   --bind "$PWD" "$PWD" \
   $PWD_GIT_BIND \
+  $PWD_CLAUDE_BINDS \
   --ro-bind "$SCRIPT_PATH" "$SCRIPT_PATH" \
   --proc /proc \
   --dev /dev \
@@ -49,4 +62,4 @@ bwrap \
   --unshare-pid \
   --die-with-parent \
   --chdir "$PWD" \
-  claude --dangerously-skip-permissions "$@"
+  claude --dangerously-skip-permissions --settings '{"sandbox":{"enabled":false}}' "$@"
