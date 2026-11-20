@@ -56,6 +56,12 @@ if [ -n "$GPG_SOCKDIR" ] && [ -d "$GPG_SOCKDIR" ]; then
   GPG_BINDS="$GPG_BINDS --bind $GPG_SOCKDIR $GPG_SOCKDIR"
 fi
 
+GPU_BINDS=()
+for dev in /dev/nvidia[0-9]* /dev/nvidiactl /dev/nvidia-uvm \
+           /dev/nvidia-uvm-tools /dev/nvidia-caps; do
+  [ -e "$dev" ] && GPU_BINDS+=(--dev-bind-try "$dev" "$dev")
+done
+
 bwrap \
   --ro-bind /usr /usr \
   --ro-bind /lib /lib \
@@ -84,6 +90,7 @@ bwrap \
   $KEYRING_BINDS \
   --proc /proc \
   --dev /dev \
+  "${GPU_BINDS[@]}" \
   --setenv HOME "$HOME" \
   --setenv USER "$USER" \
   $SSH_ENV \

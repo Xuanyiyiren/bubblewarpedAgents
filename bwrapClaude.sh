@@ -52,6 +52,12 @@ HOME_BINDS=""
 [ -e "$PWD/.claude" ] && PWD_CLAUDE_BINDS="--ro-bind $PWD/.claude $PWD/.claude"
 [ -e "$PWD/.mcp.json" ] && PWD_CLAUDE_BINDS="$PWD_CLAUDE_BINDS --ro-bind $PWD/.mcp.json $PWD/.mcp.json"
 
+GPU_BINDS=()
+for dev in /dev/nvidia[0-9]* /dev/nvidiactl /dev/nvidia-uvm \
+           /dev/nvidia-uvm-tools /dev/nvidia-caps; do
+  [ -e "$dev" ] && GPU_BINDS+=(--dev-bind-try "$dev" "$dev")
+done
+
 bwrap \
   $SYSTEM_BINDS \
   $OVERRIDE_BINDS \
@@ -62,6 +68,7 @@ bwrap \
   --ro-bind "$SCRIPT_PATH" "$SCRIPT_PATH" \
   --proc /proc \
   --dev /dev \
+  "${GPU_BINDS[@]}" \
   --bind /tmp /tmp \
   --unsetenv DBUS_SESSION_BUS_ADDRESS \
   --unsetenv DBUS_SYSTEM_BUS_ADDRESS \

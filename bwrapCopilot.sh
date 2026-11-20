@@ -39,6 +39,12 @@ HOME_BINDS=""
 [ -d "$HOME/.copilot" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.copilot $HOME/.copilot"
 [ -e "$PWD/.git" ] && PWD_GIT_BIND="--ro-bind $PWD/.git $PWD/.git"
 
+GPU_BINDS=()
+for dev in /dev/nvidia[0-9]* /dev/nvidiactl /dev/nvidia-uvm \
+           /dev/nvidia-uvm-tools /dev/nvidia-caps; do
+  [ -e "$dev" ] && GPU_BINDS+=(--dev-bind-try "$dev" "$dev")
+done
+
 bwrap \
   $SYSTEM_BINDS \
   $OVERRIDE_BINDS \
@@ -48,6 +54,7 @@ bwrap \
   --ro-bind "$SCRIPT_PATH" "$SCRIPT_PATH" \
   --proc /proc \
   --dev /dev \
+  "${GPU_BINDS[@]}" \
   --bind /tmp /tmp \
   --unsetenv DBUS_SESSION_BUS_ADDRESS \
   --unsetenv DBUS_SYSTEM_BUS_ADDRESS \

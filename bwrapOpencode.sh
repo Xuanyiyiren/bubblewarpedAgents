@@ -59,6 +59,12 @@ REPO_ROOT="$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || true)"
 [ -n "$REPO_ROOT" ] && HOME_BINDS="$HOME_BINDS --ro-bind $REPO_ROOT $REPO_ROOT"
 [ -e "$PWD/.git" ] && PWD_GIT_BIND="--ro-bind $PWD/.git $PWD/.git"
 
+GPU_BINDS=()
+for dev in /dev/nvidia[0-9]* /dev/nvidiactl /dev/nvidia-uvm \
+           /dev/nvidia-uvm-tools /dev/nvidia-caps; do
+  [ -e "$dev" ] && GPU_BINDS+=(--dev-bind-try "$dev" "$dev")
+done
+
 bwrap \
   $SYSTEM_BINDS \
   $OVERRIDE_BINDS \
@@ -68,6 +74,7 @@ bwrap \
   --ro-bind "$SCRIPT_PATH" "$SCRIPT_PATH" \
   --proc /proc \
   --dev /dev \
+  "${GPU_BINDS[@]}" \
   --bind /tmp /tmp \
   --unsetenv DBUS_SESSION_BUS_ADDRESS \
   --unsetenv DBUS_SYSTEM_BUS_ADDRESS \
