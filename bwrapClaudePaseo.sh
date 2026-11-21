@@ -68,16 +68,29 @@ if [ -f "$PWD/.git" ]; then
 fi
 
 # Drop Paseo's --permission-mode so --dangerously-skip-permissions below takes effect.
+# Paseo (via the SDK) also passes its own --settings, and claude keeps only the last one,
+# so take Paseo's out here and merge it with ours below.
+SANDBOX_OFF='{"sandbox":{"enabled":false}}'
+PASEO_SETTINGS='{}'
 CLAUDE_ARGS=()
 skip_next=0
+take_settings=0
 for a in "$@"; do
   if [ "$skip_next" = 1 ]; then skip_next=0; continue; fi
+  if [ "$take_settings" = 1 ]; then take_settings=0; PASEO_SETTINGS="$a"; continue; fi
   case "$a" in
     --permission-mode) skip_next=1 ;;
     --permission-mode=*) ;;
+    --settings) take_settings=1 ;;
+    --settings=*) PASEO_SETTINGS="${a#--settings=}" ;;
     *) CLAUDE_ARGS+=("$a") ;;
   esac
 done
+
+# --settings also accepts a file path. Our sandbox override wins; fail rather than drop settings.
+[ -f "$PASEO_SETTINGS" ] && PASEO_SETTINGS="$(cat "$PASEO_SETTINGS")"
+SETTINGS="$(jq -cn --argjson p "$PASEO_SETTINGS" --argjson o "$SANDBOX_OFF" '$p * $o')" \
+  || { echo "bwrapClaudePaseo.sh: cannot merge Paseo's --settings" >&2; exit 1; }
 
 GPU_BINDS=()
 for dev in /dev/nvidia[0-9]* /dev/nvidiactl /dev/nvidia-uvm \
@@ -105,4 +118,4 @@ bwrap \
   --unshare-pid \
   --die-with-parent \
   --chdir "$PWD" \
-  claude --dangerously-skip-permissions --settings '{"sandbox":{"enabled":false}}' "${CLAUDE_ARGS[@]}"
+  claude --dangerously-skip-permissions --settings "$SETTINGS" "${CLAUDE_ARGS[@]}"
