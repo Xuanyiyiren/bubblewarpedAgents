@@ -62,7 +62,7 @@ for dev in /dev/nvidia[0-9]* /dev/nvidiactl /dev/nvidia-uvm \
   [ -e "$dev" ] && GPU_BINDS+=(--dev-bind-try "$dev" "$dev")
 done
 
-bwrap \
+exec bwrap \
   --ro-bind /usr /usr \
   --ro-bind /lib /lib \
   --ro-bind /lib64 /lib64 \

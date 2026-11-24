@@ -57,7 +57,7 @@ for dev in /dev/nvidia[0-9]* /dev/nvidiactl /dev/nvidia-uvm \
   [ -e "$dev" ] && GPU_BINDS+=(--dev-bind-try "$dev" "$dev")
 done
 
-bwrap \
+exec bwrap \
   $SYSTEM_BINDS \
   $OVERRIDE_BINDS \
   $HOME_BINDS \
