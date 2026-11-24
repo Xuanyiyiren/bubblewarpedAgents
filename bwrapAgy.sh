@@ -37,10 +37,12 @@ HOME_BINDS=""
 [ -d "$HOME/vcpkg/packages" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/vcpkg/packages $HOME/vcpkg/packages"
 [ -d "$HOME/vcpkg/installed" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/vcpkg/installed $HOME/vcpkg/installed"
 [ -d "$HOME/.gemini/antigravity-cli" ] && HOME_BINDS="$HOME_BINDS --bind $HOME/.gemini/antigravity-cli $HOME/.gemini/antigravity-cli"
+# agy prepends bin/ to PATH for its agentapi shim; keep it ephemeral so the host PATH can't be hijacked.
+[ -d "$HOME/.gemini/antigravity-cli" ] && HOME_BINDS="$HOME_BINDS --tmpfs $HOME/.gemini/antigravity-cli/bin"
 # Like .git: config that an unwrapped agy on the host would load and execute stays read-only.
-# Keeping ~/.gemini/config read-only as a whole also prevents creating hooks.json or plugins/.
 [ -e "$HOME/.gemini/antigravity-cli/settings.json" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.gemini/antigravity-cli/settings.json $HOME/.gemini/antigravity-cli/settings.json"
 [ -d "$HOME/.gemini/antigravity-cli/builtin" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.gemini/antigravity-cli/builtin $HOME/.gemini/antigravity-cli/builtin"
+# Keeping ~/.gemini/config read-only as a whole also prevents creating hooks.json or plugins/.
 [ -d "$HOME/.gemini/config" ] && HOME_BINDS="$HOME_BINDS --ro-bind $HOME/.gemini/config $HOME/.gemini/config"
 [ -e "$PWD/.git" ] && PWD_GIT_BIND="--ro-bind $PWD/.git $PWD/.git"
 PWD_AGY_BINDS=""
