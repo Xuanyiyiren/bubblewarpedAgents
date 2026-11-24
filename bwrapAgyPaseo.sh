@@ -96,6 +96,7 @@ exec python3 -I -u "$ACP_FILTER" bwrap \
   $PWD_GIT_BIND \
   $PWD_AGY_BINDS \
   --ro-bind "$SCRIPT_PATH" "$SCRIPT_PATH" \
+  --ro-bind "$ACP_FILTER" "$ACP_FILTER" \
   --proc /proc \
   --dev /dev \
   "${GPU_BINDS[@]}" \
