@@ -1,19 +1,12 @@
 #!/usr/bin/env bash
-# bwrapAgyPaseo.sh: bwrapAgyReadAll.sh for Paseo-launched agy (via ACP).
+# bwrapAgyPaseo.sh: bwrapAgyReadAll.sh for Paseo-launched agy.
 # Paseo passes MCP servers over ACP JSON-RPC, so no /tmp config files need binding.
 # Sessions start with --dangerously-skip-permissions since the enclosing bwrap is the boundary.
 # Paseo state (including worktrees) and worktrees' main repos are shared read-only.
-# A stdio JSON-RPC filter disables ACP host terminal/fs RPCs so the sandbox cannot delegate
-# execution or file I/O back to the unsandboxed Paseo daemon.
-
-# Paseo probes availability with "<launcher> --version"; no sandbox or ACP filter needed.
-if [ "${1:-}" = "--version" ] || [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
-  exec agy "$@"
-fi
+# Configure with extends: "antigravity", not "acp": Paseo's generic ACP client serves terminal/fs
+# RPCs on the host, letting the sandbox delegate execution back; the antigravity provider does not.
 
 SCRIPT_PATH="$(realpath "$0")"
-SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
-ACP_FILTER="$SCRIPT_DIR/acpFilter.py"
 
 BASE_BINDS="
   --ro-bind / /
@@ -78,16 +71,7 @@ for dev in /dev/nvidia[0-9]* /dev/nvidiactl /dev/nvidia-uvm \
   [ -e "$dev" ] && GPU_BINDS+=(--dev-bind-try "$dev" "$dev")
 done
 
-# Accept either ".../bwrapAgyPaseo.sh" or ".../bwrapAgyPaseo.sh acp ..." in Paseo config.
-[ "${1:-}" = "acp" ] && shift
-
-# Filter ACP stdio JSON-RPC at the sandbox boundary via acpFilter.py.
-if [ ! -f "$ACP_FILTER" ]; then
-  echo "bwrapAgyPaseo.sh: missing ACP filter: $ACP_FILTER" >&2
-  exit 1
-fi
-
-exec python3 -I -u "$ACP_FILTER" bwrap \
+exec bwrap \
   $BASE_BINDS \
   $OVERRIDE_BINDS \
   --tmpfs "$HOME" \
@@ -96,7 +80,6 @@ exec python3 -I -u "$ACP_FILTER" bwrap \
   $PWD_GIT_BIND \
   $PWD_AGY_BINDS \
   --ro-bind "$SCRIPT_PATH" "$SCRIPT_PATH" \
-  --ro-bind "$ACP_FILTER" "$ACP_FILTER" \
   --proc /proc \
   --dev /dev \
   "${GPU_BINDS[@]}" \
@@ -108,4 +91,4 @@ exec python3 -I -u "$ACP_FILTER" bwrap \
   --unshare-pid \
   --die-with-parent \
   --chdir "$PWD" \
-  agy acp --dangerously-skip-permissions "$@"
+  agy --dangerously-skip-permissions "$@"
